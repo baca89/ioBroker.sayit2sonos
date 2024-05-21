@@ -111,6 +111,7 @@ Please refer to the [`dev-server` documentation](https://github.com/ioBroker/dev
 ### **WORK IN PROGRESS**
 
 -   (baca89) initial release
+-   (baca89) added Polly-client
 
 ## License
 

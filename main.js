@@ -1,15 +1,14 @@
 'use strict';
 
-/*
- * Created with @iobroker/create-adapter v2.6.3
- */
-
-// The adapter-core module gives you access to the core ioBroker functions
-// you need to create an adapter
 const utils = require('@iobroker/adapter-core');
 
 // Load your modules here, e.g.:
-// const fs = require("fs");
+const { PollyClient, SynthesizeSpeechCommand } = require('@aws-sdk/client-polly');
+const fs = require('fs');
+const path = require('path');
+//const sonos = require('sonos');  TODO: Sonos-Anbindung
+
+let dataDir = path.join(utils.getAbsoluteDefaultDataDir(), 'sayit2sonos'); //TODO: abspeichern der Datein im Pfad.
 
 class Sayit2sonos extends utils.Adapter {
 	/**
@@ -25,24 +24,30 @@ class Sayit2sonos extends utils.Adapter {
 		// this.on('objectChange', this.onObjectChange.bind(this));
 		// this.on('message', this.onMessage.bind(this));
 		this.on('unload', this.onUnload.bind(this));
+		this.polly = null;
+		this.MP3FILE = null;
 	}
 
-	/**
-	 * Is called when databases are connected and adapter received configuration.
-	 */
 	async onReady() {
-		// Initialize your adapter here
-
 		// Reset the connection indicator during startup
 		this.setState('info.connection', false, true);
 
 		// The adapters config (in the instance object everything under the attribute "native") is accessible via
 		// this.config:
+		if (!this.config.accessKey) {
+			this.log.error('accessKey is empty. Please Check your Adapter Configuration');
+			return;
+		}
+		if (!this.config.secretKey) {
+			this.log.error('secretKey is empty. Please Check your Adapter Configuration');
+			return;
+		}
+
 		this.log.info(
 			'Adapter started with Authorization-Key ' +
-				this.config.AuthorisationKey +
+				this.config.accessKey +
 				' and Secret-Key ' +
-				this.config.SecretKey,
+				this.config.secretKey,
 		);
 
 		this.setState('info.connection', true, true); // TODO: nur zum Test
@@ -159,6 +164,47 @@ class Sayit2sonos extends utils.Adapter {
 	// 		}
 	// 	}
 	// }
+	async sayItPolly(text) {
+		this.polly =
+			this.polly ||
+			new PollyClient({
+				region: 'eu-central-1',
+				credentials: {
+					accessKeyId: this.config.accessKey,
+					secretAccessKey: this.config.secretKey,
+				},
+			});
+
+		// this.polly = this.polly || new PollyClient({
+		// 	region: 'eu-central-1'});
+
+		const _polly = this.polly;
+
+		//Prüfung ob ssml oder Text übergeben wurde
+		// let type = 'text';
+		// if (text.match(/<[-+\w\s'"=]+>/)) {
+		// 	if (!text.match(/^<speak>/)) {
+		// 		text = `<speak>${text}</speak>`;
+		// 	}
+		// 	type = 'ssml';
+
+		const command = new SynthesizeSpeechCommand({
+			OutputFormat: 'mp3',
+			Text: text,
+			TextType: 'text',
+			VoiceId: 'Marlene',
+			Engine: 'neural',
+		});
+
+		const data = await _polly.send(command);
+		const byteArray = data && data.AudioStream && (await data.AudioStream.transformToByteArray());
+		// process data.
+		if (!byteArray || !byteArray.length) {
+			throw new Error('No data received');
+		} else {
+			fs.writeFileSync(this.MP3FILE, Buffer.from(byteArray), 'binary');
+		}
+	}
 }
 
 if (require.main !== module) {

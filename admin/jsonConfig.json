@@ -2,12 +2,12 @@
 	"i18n": true,
 	"type": "panel",
 	"items": {
-		"AuthorisationKey": {
+		"accessKey": {
 			"type": "text",
 			"label": "Authorisation Key",
 			"newLine": true
 		},
-		"SecretKey": {
+		"secretKey": {
 			"type": "text",
 			"label": "Secret-Key",
 			"newLine": true

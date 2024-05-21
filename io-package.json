@@ -79,8 +79,8 @@
 		]
 	},
 	"native": {
-		"AuthorisationKey": "",
-		"SecretKey": ""
+		"accessKey": "",
+		"secretKey": ""
 	},
 	"encryptedNative": [],
 	"objects": [],
