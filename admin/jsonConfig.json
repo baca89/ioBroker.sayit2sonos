@@ -2,14 +2,14 @@
 	"i18n": true,
 	"type": "panel",
 	"items": {
-		"option1": {
-			"type": "checkbox",
-			"label": "option1",
+		"AuthorisationKey": {
+			"type": "text",
+			"label": "Authorisation Key",
 			"newLine": true
 		},
-		"option2": {
+		"SecretKey": {
 			"type": "text",
-			"label": "option2",
+			"label": "Secret-Key",
 			"newLine": true
 		}
 	}

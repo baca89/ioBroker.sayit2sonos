@@ -79,9 +79,10 @@
 		]
 	},
 	"native": {
-		"option1": true,
-		"option2": "42"
+		"AuthorisationKey": "",
+		"SecretKey": ""
 	},
+	"encryptedNative": [],
 	"objects": [],
 	"instanceObjects": [
 		{

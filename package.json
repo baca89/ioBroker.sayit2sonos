@@ -16,7 +16,11 @@
     "node": ">= 20"
   },
   "dependencies": {
-    "@iobroker/adapter-core": "^3.1.4"
+    "@iobroker/adapter-core": "^3.1.4",
+    "aws-sdk": "^2.1625.0",
+    "fs": "^0.0.1-security",
+    "path": "^0.12.7",
+    "sonos": "^1.14.1"
   },
   "devDependencies": {
     "@alcalzone/release-script": "^3.7.0",
