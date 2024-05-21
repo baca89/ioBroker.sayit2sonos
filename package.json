@@ -1,0 +1,77 @@
+{
+  "name": "iobroker.sayit2sonos",
+  "version": "0.0.1",
+  "description": "AWS Polly TTS for Sonos Speakers",
+  "author": "baca89 <info@bauerc.eu>",
+  "homepage": "https://github.com/baca89/ioBroker.sayit2sonos",
+  "license": "MIT",
+  "keywords": [
+    "sonos aws polly tts"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/baca89/ioBroker.sayit2sonos.git"
+  },
+  "engines": {
+    "node": ">= 20"
+  },
+  "dependencies": {
+    "@iobroker/adapter-core": "^3.1.4"
+  },
+  "devDependencies": {
+    "@alcalzone/release-script": "^3.7.0",
+    "@alcalzone/release-script-plugin-iobroker": "^3.7.0",
+    "@alcalzone/release-script-plugin-license": "^3.7.0",
+    "@alcalzone/release-script-plugin-manual-review": "^3.7.0",
+    "@iobroker/adapter-dev": "^1.3.0",
+    "@iobroker/dev-server": "^0.7.3",
+    "@iobroker/testing": "^4.1.3",
+    "@tsconfig/node20": "^20.1.4",
+    "@types/chai": "^4.3.16",
+    "@types/chai-as-promised": "^7.1.8",
+    "@types/mocha": "^10.0.6",
+    "@types/node": "^20.12.12",
+    "@types/proxyquire": "^1.3.31",
+    "@types/sinon": "^17.0.3",
+    "@types/sinon-chai": "^3.2.12",
+    "chai": "^4.4.1",
+    "chai-as-promised": "^7.1.2",
+    "eslint": "^8.57.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.1.3",
+    "mocha": "^10.4.0",
+    "prettier": "^3.2.5",
+    "proxyquire": "^2.1.3",
+    "sinon": "^18.0.0",
+    "sinon-chai": "^3.7.0",
+    "typescript": "~5.0.4"
+  },
+  "main": "main.js",
+  "files": [
+    "admin{,/!(src)/**}/!(tsconfig|tsconfig.*|.eslintrc).{json,json5}",
+    "admin{,/!(src)/**}/*.{html,css,png,svg,jpg,js}",
+    "lib/",
+    "www/",
+    "io-package.json",
+    "LICENSE",
+    "main.js"
+  ],
+  "scripts": {
+    "test:js": "mocha --config test/mocharc.custom.json \"{!(node_modules|test)/**/*.test.js,*.test.js,test/**/test!(PackageFiles|Startup).js}\"",
+    "test:package": "mocha test/package --exit",
+    "test:integration": "mocha test/integration --exit",
+    "test": "npm run test:js && npm run test:package",
+    "check": "tsc --noEmit -p tsconfig.check.json",
+    "lint": "eslint .",
+    "translate": "translate-adapter",
+    "release": "release-script",
+    "dev-server": "dev-server"
+  },
+  "bugs": {
+    "url": "https://github.com/baca89/ioBroker.sayit2sonos/issues"
+  },
+  "directories": {
+    "lib": "lib",
+    "test": "test"
+  }
+}
