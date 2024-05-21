@@ -5,10 +5,10 @@ const utils = require('@iobroker/adapter-core');
 // Load your modules here, e.g.:
 const { PollyClient, SynthesizeSpeechCommand } = require('@aws-sdk/client-polly');
 const fs = require('fs');
-const path = require('path');
+//const path = require('path');
 //const sonos = require('sonos');  TODO: Sonos-Anbindung
 
-let dataDir = path.join(utils.getAbsoluteDefaultDataDir(), 'sayit2sonos'); //TODO: abspeichern der Datein im Pfad.
+//let dataDir = path.join(utils.getAbsoluteDefaultDataDir(), 'sayit2sonos'); //TODO: abspeichern der Datein im Pfad.
 
 class Sayit2sonos extends utils.Adapter {
 	/**
