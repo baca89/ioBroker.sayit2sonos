@@ -46,7 +46,6 @@
 		},
 		"authors": ["baca89 <info@bauerc.eu>"],
 		"keywords": ["sonos aws polly tts"],
-		"license": "MIT",
 		"licenseInformation": {
 			"type": "free",
 			"license": "MIT"
