@@ -5,10 +5,17 @@ const utils = require('@iobroker/adapter-core');
 // Load your modules here, e.g.:
 const { PollyClient, SynthesizeSpeechCommand } = require('@aws-sdk/client-polly');
 const fs = require('fs');
-//const path = require('path');
+const path = require('path');
 //const sonos = require('sonos');  TODO: Sonos-Anbindung
 
-//let dataDir = path.join(utils.getAbsoluteDefaultDataDir(), 'sayit2sonos'); //TODO: abspeichern der Datein im Pfad.
+let dataDir = path.join(utils.getAbsoluteDefaultDataDir(), 'sayit2sonos'); //TODO: abspeichern der Datein im Pfad.
+let MP3FILE;
+const options = {
+	sayLastVolume: null,
+	webLink: '',
+	cacheDir: '',
+	outFileExt: 'mp3',
+};
 
 class Sayit2sonos extends utils.Adapter {
 	/**
@@ -51,6 +58,13 @@ class Sayit2sonos extends utils.Adapter {
 		);
 
 		this.setState('info.connection', true, true); // TODO: nur zum Test
+
+		try {
+			!fs.existsSync(dataDir) && fs.mkdirSync(dataDir);
+		} catch (error) {
+			this.log.error('Could not create Directory: ${error}');
+			dataDir = __dirname;
+		}
 		/*
 		For every state in the system there has to be also an object of type state
 		Here a simple template for a boolean variable named "testVariable"
