@@ -1,8 +1,10 @@
 'use strict';
 
 const utils = require('@iobroker/adapter-core');
+const fs = require('fs');
+const path = require('path');
 
-// Load your modules here, e.g.:
+const dataDir = path.join(utils.getAbsoluteDefaultDataDir(), 'sayit');
 
 class Sayit2sonos extends utils.Adapter {
 	/**
@@ -41,6 +43,8 @@ class Sayit2sonos extends utils.Adapter {
 				' and Secret-Key ' +
 				this.config.secretKey,
 		);
+
+		await this.setupDirectory(dataDir);
 
 		this.setState('info.connection', true, true); // TODO: nur zum Test
 
@@ -157,6 +161,23 @@ class Sayit2sonos extends utils.Adapter {
 	// 		}
 	// 	}
 	// }
+
+	/**
+	 * @param {fs.PathLike} _path
+	 */
+	async setupDirectory(_path) {
+		if (!fs.existsSync(_path)) {
+			try {
+				fs.mkdirSync(_path);
+				this.log.info(`Directory ${_path} created.`);
+			} catch (error) {
+				this.log.error(`Could´t create Directory ${_path}: ${error}`);
+				return;
+			}
+		} else {
+			this.log.debug(`Directory ${_path} already exists. No further Action`);
+		}
+	}
 }
 if (require.main !== module) {
 	// Export the constructor in compact mode

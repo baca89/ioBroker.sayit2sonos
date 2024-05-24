@@ -4,7 +4,7 @@
 	"items": {
 		"accessKey": {
 			"type": "text",
-			"label": "Authorisation Key",
+			"label": "Access Key",
 			"newLine": true
 		},
 		"secretKey": {
