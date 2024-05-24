@@ -3,19 +3,6 @@
 const utils = require('@iobroker/adapter-core');
 
 // Load your modules here, e.g.:
-const { PollyClient, SynthesizeSpeechCommand } = require('@aws-sdk/client-polly');
-const fs = require('fs');
-const path = require('path');
-//const sonos = require('sonos');  TODO: Sonos-Anbindung
-
-let dataDir = path.join(utils.getAbsoluteDefaultDataDir(), 'sayit2sonos'); //TODO: abspeichern der Datein im Pfad.
-let MP3FILE;
-const options = {
-	sayLastVolume: null,
-	webLink: '',
-	cacheDir: '',
-	outFileExt: 'mp3',
-};
 
 class Sayit2sonos extends utils.Adapter {
 	/**
@@ -31,8 +18,6 @@ class Sayit2sonos extends utils.Adapter {
 		// this.on('objectChange', this.onObjectChange.bind(this));
 		// this.on('message', this.onMessage.bind(this));
 		this.on('unload', this.onUnload.bind(this));
-		this.polly = null;
-		this.MP3FILE = null;
 	}
 
 	async onReady() {
@@ -50,7 +35,7 @@ class Sayit2sonos extends utils.Adapter {
 			return;
 		}
 
-		this.log.info(
+		this.log.debug(
 			'Adapter started with Authorization-Key ' +
 				this.config.accessKey +
 				' and Secret-Key ' +
@@ -59,12 +44,6 @@ class Sayit2sonos extends utils.Adapter {
 
 		this.setState('info.connection', true, true); // TODO: nur zum Test
 
-		try {
-			!fs.existsSync(dataDir) && fs.mkdirSync(dataDir);
-		} catch (error) {
-			this.log.error('Could not create Directory: ${error}');
-			dataDir = __dirname;
-		}
 		/*
 		For every state in the system there has to be also an object of type state
 		Here a simple template for a boolean variable named "testVariable"
@@ -178,49 +157,7 @@ class Sayit2sonos extends utils.Adapter {
 	// 		}
 	// 	}
 	// }
-	async sayItPolly(text) {
-		this.polly =
-			this.polly ||
-			new PollyClient({
-				region: 'eu-central-1',
-				credentials: {
-					accessKeyId: this.config.accessKey,
-					secretAccessKey: this.config.secretKey,
-				},
-			});
-
-		// this.polly = this.polly || new PollyClient({
-		// 	region: 'eu-central-1'});
-
-		const _polly = this.polly;
-
-		//Prüfung ob ssml oder Text übergeben wurde
-		// let type = 'text';
-		// if (text.match(/<[-+\w\s'"=]+>/)) {
-		// 	if (!text.match(/^<speak>/)) {
-		// 		text = `<speak>${text}</speak>`;
-		// 	}
-		// 	type = 'ssml';
-
-		const command = new SynthesizeSpeechCommand({
-			OutputFormat: 'mp3',
-			Text: text,
-			TextType: 'text',
-			VoiceId: 'Marlene',
-			Engine: 'neural',
-		});
-
-		const data = await _polly.send(command);
-		const byteArray = data && data.AudioStream && (await data.AudioStream.transformToByteArray());
-		// process data.
-		if (!byteArray || !byteArray.length) {
-			throw new Error('No data received');
-		} else {
-			fs.writeFileSync(this.MP3FILE, Buffer.from(byteArray), 'binary');
-		}
-	}
 }
-
 if (require.main !== module) {
 	// Export the constructor in compact mode
 	/**
