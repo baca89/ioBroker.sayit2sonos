@@ -48,8 +48,7 @@ class Sayit2sonos extends utils.Adapter {
 
 		this.setState('info.connection', true, true); 
 		// TODO: set Commecteion State correctly
-  // Set Connection State if Polly connects successfully
-  //
+		// Set Connection State if Polly connects successfully
 
 		/*
 		For every state in the system there has to be also an object of type state
