@@ -46,7 +46,7 @@ class Sayit2sonos extends utils.Adapter {
 
 		await this.setupDirectory(dataDir);
 
-		this.setState('info.connection', true, true); 
+		this.setState('info.connection', true, true);
 		// TODO: set Commecteion State correctly
 		// Set Connection State if Polly connects successfully
 
