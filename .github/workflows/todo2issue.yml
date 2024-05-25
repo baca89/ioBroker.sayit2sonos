@@ -1,17 +1,11 @@
-name: Create issues from todos
-
-on:
-    push:
-        branches:
-            - main
-
-jobs:
-    todos:
-        runs-on: ubuntu-latest
-        steps:
-            - uses: actions/checkout@v1
-            - name: todo-actions
-              uses: dtinth/todo-actions@master
-              env:
-                  GITHUB_TOKEN: ${{ secrets.AUTO_MERGE_TOKEN }}
-                  TODO_ACTIONS_MONGO_URL: ${{ secrets.TODO_ACTIONS_MONGO_URL }}
+name: "Run TODO to ISSUE"
+on: [ "push" ]
+jobs: 
+ build:
+  runs-on: "ubuntu-latest"
+  steps:
+   - uses: "actions/checkout@v3"
+   - name: "TODO to Issue"
+     uses: "alstr/todo-to-issue-action@v4"
+     with: 
+      TOKEN: ${{  secrets.AUTO_MERGE_TOKEN }}
