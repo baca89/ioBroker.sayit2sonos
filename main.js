@@ -4,6 +4,7 @@ const utils = require('@iobroker/adapter-core');
 const fs = require('fs');
 const path = require('path');
 const aws = require(`aws-sdk`);
+const crypto = require(`crypto`);
 
 const dataDir = path.join(utils.getAbsoluteDefaultDataDir(), 'sayit');
 
@@ -22,6 +23,7 @@ class Sayit2sonos extends utils.Adapter {
 		// this.on('message', this.onMessage.bind(this));
 		this.on('unload', this.onUnload.bind(this));
 		this.polly = null;
+		this.fileToBeWrite = '';
 	}
 
 	async onReady() {
@@ -139,13 +141,42 @@ class Sayit2sonos extends utils.Adapter {
 	 * @param {string} id
 	 * @param {ioBroker.State | null | undefined} state
 	 */
-	onStateChange(id, state) {
+	async onStateChange(id, state) {
 		if (state) {
-			if (!state.ack) {
-				this.log.info(`Text to be spoken : ${state.val}`);
+			if (id === 'sayit2sonos.0.text') {
+				if (!state.ack) {
+					this.log.info(`Text to be spoken : ${state.val}`);
+					let text = String(state.val);
+					let data = undefined;
+					let type = 'text';
+					if (text.match(/<[-+\w\s'"=]+>/)) {
+						if (!text.match(/^<speak>/)) {
+							text = `<speak>${text}</speak>`;
+						}
+						type = 'ssml';
+					}
 
-				//TODO: Create MP3 File
-				// next Step is to crate an new MP3 file of the Text.
+					const params = {
+						OutputFormat: 'mp3',
+						SampleRate: '22050',
+						Text: text,
+						TextType: type,
+						VoiceID: 'Marlene',
+						Engine: 'neural',
+					};
+					data = await this.synthesizeSpeech(params);
+					if (data !== undefined) {
+						try {
+							this.fileToBeWrite = await this.getFilemane(text, params);
+							fs.writeFileSync(this.fileToBeWrite, data);
+						} catch (error) {
+							this.log.error(`Error downloading TTS: ${error}`);
+						}
+					}
+
+					//TODO: Create MP3 File
+					// next Step is to crate an new MP3 file of the Text.
+				}
 			}
 			this.log.debug(`state ${id} changed: ${state.val} (ack = ${state.ack})`);
 		} else {
@@ -213,6 +244,12 @@ class Sayit2sonos extends utils.Adapter {
 				}
 			});
 		}
+	}
+	async getFilemane(_text, _param) {
+		const sTextToBeHashed = _text.concat(JSON.stringify(_param));
+		const hashSum = crypto.createHash('md5');
+		hashSum.update(sTextToBeHashed);
+		return hashSum.digest('hex') + '.mp3';
 	}
 }
 if (require.main !== module) {
