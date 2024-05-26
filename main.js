@@ -49,13 +49,9 @@ class Sayit2sonos extends utils.Adapter {
 		await this.setupDirectory(dataDir);
 		await this.setupPolly();
 
-<<<<<<< HEAD
 		this.setState('info.connection', true, true);
 		// TODO: set Commecteion State correctly
 		// Set Connection State if Polly connects successfully
-=======
-		this.setState('info.connection', true, true); // TODO: set Connection State after setup Connection to AWS
->>>>>>> 4f7584d (added aws-sdk)
 
 		/*
 		For every state in the system there has to be also an object of type state
