@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 name: "Run TODO to ISSUE"
 on: [ "push" ]
 jobs: 
@@ -9,3 +10,16 @@ jobs:
      uses: "alstr/todo-to-issue-action@v4"
      with: 
       TOKEN: ${{  secrets.AUTO_MERGE_TOKEN }}
+=======
+name: 'Run TODO to ISSUE'
+on: ['push']
+jobs:
+    build:
+        runs-on: 'ubuntu-latest'
+        steps:
+            - uses: 'actions/checkout@v3'
+            - name: 'TODO to Issue'
+              uses: 'alstr/todo-to-issue-action@v4'
+              with:
+                  TOKEN: ${{  secrets.AUTO_MERGE_TOKEN }}
+>>>>>>> 5c20a1b (edited todo2issue)
