@@ -143,6 +143,9 @@ class Sayit2sonos extends utils.Adapter {
 		if (state) {
 			if (!state.ack) {
 				this.log.info(`Text to be spoken : ${state.val}`);
+
+				//TODO: Create MP3 File
+				// next Step is to crate an new MP3 file of the Text.
 			}
 			this.log.debug(`state ${id} changed: ${state.val} (ack = ${state.ack})`);
 		} else {
@@ -198,6 +201,17 @@ class Sayit2sonos extends utils.Adapter {
 		} catch (error) {
 			this.log.error(`AWS Polly not connected: ${error}`);
 		}
+	}
+
+	async synthesizeSpeech(param) {
+		//TODO: polly is maybe null
+		// Implement test if null
+
+		this.polly.synthesizeSpeech(param, (err, data) => {
+			if (!err) {
+				return data.AudioStream;
+			}
+		});
 	}
 }
 if (require.main !== module) {
