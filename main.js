@@ -3,6 +3,7 @@
 const utils = require('@iobroker/adapter-core');
 const fs = require('fs');
 const path = require('path');
+const aws = require(`aws-sdk`);
 
 const dataDir = path.join(utils.getAbsoluteDefaultDataDir(), 'sayit');
 
@@ -20,6 +21,7 @@ class Sayit2sonos extends utils.Adapter {
 		// this.on('objectChange', this.onObjectChange.bind(this));
 		// this.on('message', this.onMessage.bind(this));
 		this.on('unload', this.onUnload.bind(this));
+		this.polly = null;
 	}
 
 	async onReady() {
@@ -45,10 +47,15 @@ class Sayit2sonos extends utils.Adapter {
 		);
 
 		await this.setupDirectory(dataDir);
+		await this.setupPolly();
 
+<<<<<<< HEAD
 		this.setState('info.connection', true, true);
 		// TODO: set Commecteion State correctly
 		// Set Connection State if Polly connects successfully
+=======
+		this.setState('info.connection', true, true); // TODO: set Connection State after setup Connection to AWS
+>>>>>>> 4f7584d (added aws-sdk)
 
 		/*
 		For every state in the system there has to be also an object of type state
@@ -178,6 +185,20 @@ class Sayit2sonos extends utils.Adapter {
 			}
 		} else {
 			this.log.debug(`Directory ${_path} already exists. No further Action`);
+		}
+	}
+	async setupPolly() {
+		const params = {
+			accessKeyId: this.config.accessKey,
+			secretAccessKey: this.config.secretKey,
+			apiVersion: '2016-06-10',
+			region: `eu-central-1`,
+		};
+		try {
+			this.polly = new aws.Polly(params);
+			this.log.info(`Connected to AWS Polly.`);
+		} catch (error) {
+			this.log.error(`AWS Polly not connected: ${error}`);
 		}
 	}
 }
