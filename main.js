@@ -204,14 +204,15 @@ class Sayit2sonos extends utils.Adapter {
 	}
 
 	async synthesizeSpeech(param) {
-		//TODO: polly is maybe null
-		// Implement test if null
-
-		this.polly.synthesizeSpeech(param, (err, data) => {
-			if (!err) {
-				return data.AudioStream;
-			}
-		});
+		if (!this.polly) {
+			this.log.error('Polly is not set');
+		} else {
+			this.polly.synthesizeSpeech(param, (err, data) => {
+				if (!err) {
+					return data.AudioStream;
+				}
+			});
+		}
 	}
 }
 if (require.main !== module) {
