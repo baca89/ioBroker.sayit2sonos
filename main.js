@@ -1,7 +1,8 @@
 'use strict';
 
 const utils = require('@iobroker/adapter-core');
-// const fs = require('fs');
+const fs = require('fs');
+const path = require('path');
 // const { PollyClient, SynthesizeSpeechCommand } = require('@aws-sdk/client-polly');
 
 class Sayit2sonos extends utils.Adapter {
@@ -18,11 +19,17 @@ class Sayit2sonos extends utils.Adapter {
 		// this.on('objectChange', this.onObjectChange.bind(this));
 		// this.on('message', this.onMessage.bind(this));
 		this.on('unload', this.onUnload.bind(this));
+		this.MP3FILE = null;
+		this.datadir = null;
+		this.weblink = null;
 	}
 
 	async onReady() {
 		// Reset the connection indicator during startup
 		this.setState('info.connection', false, true);
+
+		this.dataDir = path.join(utils.getAbsoluteDefaultDataDir(), 'sayit2Sonos');
+		this.MP3FILE = path.normalize(path.join(this.dataDir, `.say.mp3`));
 
 		// The adapters config (in the instance object everything under the attribute "native") is accessible via
 		// this.config:
@@ -41,6 +48,65 @@ class Sayit2sonos extends utils.Adapter {
 				' and Secret-Key ' +
 				this.config.secretKey,
 		);
+
+		if (this.config.cache) {
+			if (this.config.cacheDir && (this.config.cacheDir[0] === '/' || this.config.cacheDir[0] === '\\')) {
+				this.config.cacheDir = this.config.cacheDir.substring(1);
+			}
+			this.config.cacheDir = path.join(__dirname, this.config.cacheDir);
+			if (this.config.cacheDir) {
+				this.config.cacheDir = this.config.cacheDir.replace(/\\/g, '/');
+				if (this.config.cacheDir[this.config.cacheDir.length - 1] === '/') {
+					this.config.cacheDir = this.config.cacheDir.substring(0, this.config.cacheDir.length - 1);
+				}
+			} else {
+				this.config.cacheDir = '';
+			}
+
+			const parts = this.config.cacheDir.split('/');
+			let i = 0;
+			while (i < parts.length) {
+				if (parts[i] === '..') {
+					parts.splice(i - 1, 2);
+					i--;
+				} else {
+					i++;
+				}
+			}
+
+			this.config.cacheDir = parts.join('/');
+
+			//create Cahce-Directory if not exists
+			if (!fs.existsSync(this.config.cacheDir)) {
+				try {
+					this.mkpathSync(`${__dirname}/`, this.config.cacheDir);
+				} catch (error) {
+					this.log.error(`Cannot create ${this.config.cacheDir}: ${error.message}`);
+				}
+			}
+		}
+
+		await this.setStateAsync('tts.playing', false, true);
+
+		// calculate weblink for devices
+		const obj = await this.getForeignObjectAsync(`system.adapter.${this.config.webInstance}`);
+
+		this.weblink = this.getWebLink(obj, this.config.webServer, this.config.webInstance);
+
+		// update web link on changes
+		await this.subscribeForeignObjectsAsync(`system.adapter.${this.config.webInstance}`);
+
+		// initialize tts.text
+		let textState;
+		try {
+			textState = await this.getStateAsync('tts.text');
+		} catch (error) {
+			//ignore
+		}
+
+		if (!textState) {
+			await this.setStateAsync('tts.text', '', true);
+		}
 
 		this.setState('info.connection', true, true);
 		// TODO: set Commecteion State correctly
@@ -158,6 +224,58 @@ class Sayit2sonos extends utils.Adapter {
 	// 		}
 	// 	}
 	// }
+
+	mkpathSync(rootpath, dirpath) {
+		//Remove Filename
+		dirpath = dirpath.split('/');
+		dirpath.pop();
+		if (!dirpath.length) {
+			return;
+		}
+
+		for (let i = 0; i < dirpath.length, i++; ) {
+			rootpath += `${dirpath[i]}/`;
+			if (!fs.existsSync(rootpath)) {
+				if (dirpath[i] !== '..') {
+					fs.mkdirSync(rootpath);
+				} else {
+					throw `Cannot create ${rootpath}${dirpath.join('/')}`;
+				}
+			}
+		}
+	}
+
+	getWebLink(obj, webServer, webInstance) {
+		let webLink = '';
+		if (obj && obj.native) {
+			webLink = 'http';
+			if (obj.native.auth) {
+				this.log.error(`Cannot use server ${obj._id} with authentication. Select other or create another one.`);
+			} else {
+				if (obj.native.secure) {
+					webLink += 's';
+				}
+				webLink += '://';
+				if (obj.native.bind === 'localhost' || obj.native.bind === '127.0.0.1') {
+					this.log.error(
+						`Selected web server "${obj._id}" is only on local device available. Select other or create another one.`,
+					);
+				} else {
+					if (obj.native.bind === '0.0.0.0') {
+						webLink += webServer || this.config.webServer;
+					} else {
+						webLink += obj.native.bind;
+					}
+				}
+				webLink += `:${obj.native.port}`;
+			}
+		} else {
+			this.log.error(
+				`Cannot read information about "${webInstance || this.config.webInstance}". No web server is active`,
+			);
+		}
+		return webLink;
+	}
 }
 
 if (require.main !== module) {

@@ -79,7 +79,16 @@
 	},
 	"native": {
 		"accessKey": "",
-		"secretKey": ""
+		"secretKey": "",
+		"announce": false,
+		"annoDuration": 0,
+		"annoTimeout": 15,
+		"annoVolume": 50,
+		"cache": true,
+		"cacheDir": "../../cache/",
+		"dataDir": "",
+		"webServer": "",
+		"webInstance": ""
 	},
 	"encryptedNative": [],
 	"objects": [],
