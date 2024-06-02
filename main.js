@@ -326,12 +326,27 @@ class Sayit2sonos extends utils.Adapter {
 		//TODO: addToQueue mit leben füllen
 	}
 
-	async getCachedFileName() {
+	async getCachedFileName(text) {
 		// TODO: getCachedFileName mit Leben füllen
 	}
 
-	async isCached() {
-		//TODO: isCached mit Leben füllen
+	async isCached(text) {
+		const md5filename = await this.getCachedFileName(text);
+
+		if (fs.existsSync(md5filename)) {
+			if (this.config.cacheExpiryDays) {
+				const fileStat = fs.statSync(md5filename);
+				if (
+					fileStat.ctime &&
+					Date.now() - new Date(fileStat.ctime).getTime() > this.config.cacheExpiryDays * 24 * 60 * 60 * 1000
+				) {
+					this.log.info('Cached File expired, remove and re-generate');
+					fs.unlinkSync(md5filename);
+					return false;
+				}
+			}
+			return md5filename;
+		}
 	}
 } // End of Class
 

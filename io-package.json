@@ -87,6 +87,7 @@
 		"volume": 50,
 		"cache": true,
 		"cacheDir": "../../cache/",
+		"cacheExpiryDays": 10,
 		"dataDir": "",
 		"webServer": "",
 		"webInstance": ""
