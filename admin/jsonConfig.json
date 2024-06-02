@@ -24,7 +24,7 @@
 			"type": "fileSelector",
 			"fileTypes": "audio",
 			"pattern": "tts.userfiles/*.mp3",
-			"objectID": "sayit2Sonos.%INSTANCE%",
+			"objectID": "sayit2sonos.%INSTANCE%",
 			"noTranslation": true,
 			"upload": "tts.userfiles/",
 			"sm": 12,

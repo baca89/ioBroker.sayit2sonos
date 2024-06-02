@@ -80,7 +80,7 @@
 	"native": {
 		"accessKey": "",
 		"secretKey": "",
-		"announce": false,
+		"announce": "",
 		"annoDuration": 0,
 		"annoTimeout": 15,
 		"annoVolume": 50,
