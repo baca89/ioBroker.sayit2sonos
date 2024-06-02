@@ -12,10 +12,24 @@
 			"label": "Secret-Key",
 			"newLine": true
 		},
-		"announce": {
-			"type": "checkbox",
-			"label": "use Announcement",
+		"volume": {
+			"type": "number",
+			"min": 0,
+			"max": 100,
+			"label": "Volume for TTS",
 			"newLine": true
+		},
+		"announce": {
+			"newLine": true,
+			"type": "fileSelector",
+			"fileTypes": "audio",
+			"pattern": "tts.userfiles/*.mp3",
+			"objectID": "sayit2Sonos.%INSTANCE%",
+			"noTranslation": true,
+			"upload": "tts.userfiles/",
+			"sm": 12,
+			"md": 6,
+			"lg": 4
 		},
 		"annoDuration": {
 			"type": "number",

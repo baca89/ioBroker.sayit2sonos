@@ -84,6 +84,7 @@
 		"annoDuration": 0,
 		"annoTimeout": 15,
 		"annoVolume": 50,
+		"volume": 50,
 		"cache": true,
 		"cacheDir": "../../cache/",
 		"dataDir": "",

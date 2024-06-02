@@ -31,6 +31,8 @@ class Sayit2sonos extends utils.Adapter {
 		this.MP3FILE = null;
 		this.datadir = null;
 		this.weblink = null;
+		this.tasks = [];
+		this.lastSay = null;
 	}
 
 	async onReady() {
@@ -57,6 +59,10 @@ class Sayit2sonos extends utils.Adapter {
 				' and Secret-Key ' +
 				this.config.secretKey,
 		);
+
+		//Upload custom files
+		this.log.silly('now will be upload the announce files');
+		await this.uploadFiles();
 
 		if (this.config.cache) {
 			if (this.config.cacheDir && (this.config.cacheDir[0] === '/' || this.config.cacheDir[0] === '\\')) {
@@ -302,6 +308,129 @@ class Sayit2sonos extends utils.Adapter {
 			);
 		}
 		return webLink;
+	}
+
+	async uploadFile(file) {
+		this.log.silly('Datei wird in Verzeichnis geladen.');
+		try {
+			const stat = fs.statSync(path.join(`${__dirname}/mp3/`, file));
+
+			if (!stat.isFile()) {
+				//ignore -> not a file
+				return;
+			}
+		} catch (error) {
+			//ignore, not a file
+			return;
+		}
+
+		let data;
+		try {
+			data = await this.readFileAsync(this.namespace, `tts.userfiles/${file}`);
+		} catch (error) {
+			// ignore error
+		}
+
+		if (!data) {
+			try {
+				await this.writeFileAsync(
+					this.namespace,
+					`tts.userfiles/${file}`,
+					fs.readFileSync(path.join(`${__dirname}/mp3/`, file)),
+				);
+			} catch (error) {
+				this.log.error(`Cannot write file "${__dirname}/mp3/${file}": ${error.toString()}`);
+			}
+		}
+	}
+
+	async uploadFiles() {
+		this.log.silly('mp3-Dateien werden hochgeladen.');
+		this.log.silly(`Pfad lautet: ${__dirname}/mp3`);
+		if (fs.existsSync(`${__dirname}/mp3`)) {
+			this.log.info('Upload announce mp3 files');
+			let obj;
+			try {
+				obj = await this.getForeignObjectAsync(this.namespace);
+			} catch (error) {
+				//ignore
+			}
+
+			if (!obj) {
+				await this.setForeignObjectAsync(this.namespace, {
+					type: 'meta',
+					common: { name: 'User files for SayIt', type: 'meta.user' },
+					native: {},
+				});
+			}
+			const files = fs.readdirSync(`${__dirname}/mp3`);
+			for (let f = 0; f < files.length; f++) {
+				await this.uploadFile(files[f]);
+			}
+		} else {
+			this.log.silly('pfad für Mp3´s existiert nicht.');
+		}
+	}
+	/**
+	 * @param {string} text
+	 * @param {any} language
+	 * @param {any} volume
+	 * @param {any} onlyCache
+	 */
+	addToQueue(text, language, volume, onlyCache) {
+		// Extract language from "en;volume;Text to say"
+
+		if (text.includes(';')) {
+			const arr = text.split(';', 3);
+			//If language;text or volume;text
+			if (arr.length === 2) {
+				// If number
+				if (parseInt(arr[0]).toString() === arr[0].toString()) {
+					volume = arr[0].trim();
+				} else {
+					language = arr[0].trim();
+				}
+				text = arr[1].trim();
+			} else if (arr.length === 3) {
+				// If language;volume;text or volume;language;text
+				// If number
+				if (parseInt(arr[0]).toString() === arr[0].toString()) {
+					volume = arr[0].trim();
+					language = arr[1].trim();
+				} else {
+					volume = arr[1].trim();
+					language = arr[0].trim();
+				}
+				text = arr[2].trim();
+			}
+		}
+		// Workaround for double text
+		// find all similar texts with interval less han 500 ms
+		const combined = [text, language, volume].filter((t) => t).join(';');
+		if (this.tasks.find((task) => task.combined === combined && Date.now() - task.ts < 500)) {
+			// ignore it
+			return;
+		}
+
+		const hightPriority = text.startsWith('!');
+
+		volume = parseInt(volume || this.config.volume, 10);
+		if (Number.isNaN(volume)) {
+			volume = undefined;
+		}
+
+		const task = { text, language, volume, onlyCache, ts: Date.now(), combined };
+
+		// If more time than 15 seconds till last text, add announcement
+		if (
+			!onlyCache &&
+			this.config.announce &&
+			!this.tasks.length &&
+			(!this.lastSay || Date.now() - this.lastSay > this.config.annoTimeout * 1000)
+		) {
+			//place as first the announcement mp3-file
+			this.tasks.push({ text: this.config.announce });
+		}
 	}
 }
 
