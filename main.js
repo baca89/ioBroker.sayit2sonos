@@ -3,6 +3,15 @@
 const utils = require('@iobroker/adapter-core');
 const fs = require('fs');
 const path = require('path');
+const tts = require('./lib/tts');
+
+const options = {
+	sayLastVolume: null,
+	webLink: '',
+	cacheDir: '',
+	outFileExt: 'mp3',
+};
+
 // const { PollyClient, SynthesizeSpeechCommand } = require('@aws-sdk/client-polly');
 
 class Sayit2sonos extends utils.Adapter {
@@ -80,12 +89,12 @@ class Sayit2sonos extends utils.Adapter {
 			if (!fs.existsSync(this.config.cacheDir)) {
 				try {
 					this.mkpathSync(`${__dirname}/`, this.config.cacheDir);
+					this.log.info(`Directory ${__dirname}/${this.config.cacheDir}created`);
 				} catch (error) {
 					this.log.error(`Cannot create ${this.config.cacheDir}: ${error.message}`);
 				}
 			}
 		}
-
 		await this.setStateAsync('tts.playing', false, true);
 
 		// calculate weblink for devices
@@ -106,6 +115,24 @@ class Sayit2sonos extends utils.Adapter {
 
 		if (!textState) {
 			await this.setStateAsync('tts.text', '', true);
+		}
+
+		// create TTS
+
+		try {
+			//TODO: implement addToQueue
+			// options.addToQueue = this.addToQueue;
+			//TODO: implement getCachedFileName
+			// options.getCachedFileName = this.getCachedFileName;
+			//TODO: implement is Cached
+			// options.isCached = this.isCached;
+			options.getWebLink = this.getWebLink;
+			options.MP3FILE = this.MP3FILE;
+			this.tts = new tts(options);
+			// speech2device = new Speech2Device(adapter, options); TODO: rework Spech2Device
+		} catch (e) {
+			this.log.error(`Cannot initialize engines: ${e.toString()}`);
+			return;
 		}
 
 		this.setState('info.connection', true, true);

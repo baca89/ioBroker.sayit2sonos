@@ -68,7 +68,8 @@
     "lint": "eslint .",
     "translate": "translate-adapter",
     "release": "release-script",
-    "dev-server": "dev-server"
+    "dev-server": "dev-server",
+    "dev": "dev-server watch"
   },
   "bugs": {
     "url": "https://github.com/baca89/ioBroker.sayit2sonos/issues"

@@ -113,6 +113,74 @@
 				"def": false
 			},
 			"native": {}
+		},
+		{
+			"_id": "tts.playing",
+			"type": "state",
+			"common": {
+				"role": "media.tts.text",
+				"name": "Is now speaking",
+				"type": "boolean",
+				"read": true,
+				"write": false,
+				"desc": "Is true while speaking"
+			},
+			"native": {}
+		},
+		{
+			"_id": "tts.text",
+			"type": "state",
+			"common": {
+				"role": "media.tts.text",
+				"name": "Text to speech",
+				"type": "string",
+				"read": true,
+				"write": true,
+				"desc": "This text will be converted to speech"
+			},
+			"native": {}
+		},
+		{
+			"_id": "tts.volume",
+			"type": "state",
+			"common": {
+				"role": "level.volume",
+				"name": "TTS Volume",
+				"min": 0,
+				"max": 100,
+				"def": 70,
+				"type": "number",
+				"read": true,
+				"write": true,
+				"desc": "System volume or remote device volume"
+			},
+			"native": {}
+		},
+		{
+			"_id": "tts.clearQueue",
+			"type": "state",
+			"common": {
+				"role": "button",
+				"name": "Clear queued texts",
+				"type": "boolean",
+				"read": false,
+				"write": true,
+				"desc": "If you need to say something immediately and the queue is full, set it to true before sending the new task"
+			},
+			"native": {}
+		},
+		{
+			"_id": "tts.cachetext",
+			"type": "state",
+			"common": {
+				"role": "media.tts.cachetext",
+				"name": "Text to cache",
+				"type": "string",
+				"read": true,
+				"write": true,
+				"desc": "This text will be cached on disk to play it later"
+			},
+			"native": {}
 		}
 	]
 }
